@@ -1,6 +1,7 @@
 package org.belichenko.a.timetodrink;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,7 +24,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ListFragment extends Fragment implements Callback<PointsData> {
+public class ListFragment extends Fragment implements Callback<PointsData>, Constants {
 
     private OnListFragmentInteractionListener mListener;
     private static final String TAG = "List Fragment ";
@@ -79,10 +80,13 @@ public class ListFragment extends Fragment implements Callback<PointsData> {
 
     protected void updatePlaces(Location location) {
 
+        SharedPreferences sharedPref = App.getAppContext()
+                .getSharedPreferences(STORAGE_OF_SETTINGS, Context.MODE_PRIVATE);
+
         LinkedHashMap<String, String> filter = new LinkedHashMap<>();
         filter.put("location", String.valueOf(location.getLatitude()) + ","
                 + String.valueOf(location.getLongitude()));
-        filter.put("radius", "1500");
+        filter.put("radius", sharedPref.getString(RADIUS, "1000"));
         filter.put("language", "ru");
         filter.put("types", "bar|liquor_store");
         filter.put("key", "AIzaSyC9JgNsRuDi0j5gUoE4WOwRZ7LrV85NPXA");

@@ -2,8 +2,10 @@ package org.belichenko.a.timetodrink;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -37,7 +39,8 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import org.belichenko.a.timetodrink.data_structure.Results;
 
 public class MainActivity extends AppCompatActivity
-        implements ListFragment.OnListFragmentInteractionListener
+        implements Constants
+        , ListFragment.OnListFragmentInteractionListener
         , GoogleApiClient.ConnectionCallbacks
         , GoogleApiClient.OnConnectionFailedListener
         , LocationListener {
@@ -134,10 +137,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void createLocationRequest() {
+        SharedPreferences sharedPref = getSharedPreferences(STORAGE_OF_SETTINGS, Context.MODE_PRIVATE);
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(15000);
-        mLocationRequest.setFastestInterval(7000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(sharedPref.getInt(UPDATE_TIME, TEN_SECONDS));
+        mLocationRequest.setFastestInterval(FIVE_SECONDS);
+        mLocationRequest.setPriority(sharedPref.getInt(ACCURACY, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY));
     }
 
     @Override
