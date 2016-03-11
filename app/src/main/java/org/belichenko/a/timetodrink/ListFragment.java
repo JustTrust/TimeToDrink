@@ -80,7 +80,7 @@ public class ListFragment extends Fragment implements Callback<PointsData> {
     protected void updatePlaces(Location location) {
 
         LinkedHashMap<String, String> filter = new LinkedHashMap<>();
-        filter.put("location", String.valueOf(location.getLongitude()) + ","
+        filter.put("location", String.valueOf(location.getLatitude()) + ","
                 + String.valueOf(location.getLongitude()));
         filter.put("radius", "1500");
         filter.put("language", "ru");
@@ -97,7 +97,6 @@ public class ListFragment extends Fragment implements Callback<PointsData> {
         Call<PointsData> call = stackOverflowAPI.getPlacesData(filter);
         //asynchronous call
         call.enqueue(this);
-
     }
 
     @Override
