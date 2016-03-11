@@ -12,16 +12,18 @@ import android.view.ViewGroup;
 
 import org.belichenko.a.timetodrink.data_structure.PointsData;
 import org.belichenko.a.timetodrink.data_structure.Results;
-import org.belichenko.a.timetodrink.data_structure.Retrofit;
+import org.belichenko.a.timetodrink.data_structure.googleNearbyPlaces;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ListFragment extends Fragment {
+public class ListFragment extends Fragment implements Callback<PointsData> {
 
     private OnListFragmentInteractionListener mListener;
     private static final String TAG = "List Fragment ";
@@ -76,40 +78,52 @@ public class ListFragment extends Fragment {
     }
 
     protected void updatePlaces(Location location) {
+
         LinkedHashMap<String, String> filter = new LinkedHashMap<>();
-        filter.put("location", String.format("%.7f,%.7f", location.getLatitude(), location.getLongitude()));
+        filter.put("location", String.valueOf(location.getLongitude()) + ","
+                + String.valueOf(location.getLongitude()));
         filter.put("radius", "1500");
         filter.put("language", "ru");
-        //filter.put("rankby", "distance");
         filter.put("types", "bar|liquor_store");
         filter.put("key", "AIzaSyC9JgNsRuDi0j5gUoE4WOwRZ7LrV85NPXA");
 
-        Retrofit.getPlacesData(filter, new Callback<PointsData>() {
-            @Override
-            public void success(PointsData pointsData, Response response) {
-                if (pointsData != null) {
-                    if (pointsData.status.equals("OK")) {
-                        if (pointsData.results != null) {
-                            resultsArrayList.clear();
-                            resultsArrayList.addAll(pointsData.results);
-                            adapter.notifyDataSetChanged();
-                        }
-                    } else {
-                        resultsArrayList.clear();
-                        resultsArrayList.add(new Results(pointsData.status));
-                        resultsArrayList.add(new Results(pointsData.error_message));
-                        adapter.notifyDataSetChanged();
-                    }
-                }
-            }
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://maps.googleapis.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        // prepare call in Retrofit 2.0
+        googleNearbyPlaces stackOverflowAPI = retrofit.create(googleNearbyPlaces.class);
 
-            @Override
-            public void failure(RetrofitError error) {
+        Call<PointsData> call = stackOverflowAPI.getPlacesData(filter);
+        //asynchronous call
+        call.enqueue(this);
+
+    }
+
+    @Override
+    public void onResponse(Call<PointsData> call, Response<PointsData> response) {
+        if (response.body() != null) {
+            if (response.body().status.equals("OK")) {
+                if (response.body().results != null) {
+                    resultsArrayList.clear();
+                    resultsArrayList.addAll(response.body().results);
+                    adapter.notifyDataSetChanged();
+                }
+            } else {
                 resultsArrayList.clear();
-                resultsArrayList.add(new Results(error.toString()));
+                resultsArrayList.add(new Results(response.body().status));
+                resultsArrayList.add(new Results(response.body().error_message));
                 adapter.notifyDataSetChanged();
             }
-        });
+        }
+
+    }
+
+    @Override
+    public void onFailure(Call<PointsData> call, Throwable t) {
+        resultsArrayList.clear();
+        resultsArrayList.add(new Results(t.getLocalizedMessage()));
+        adapter.notifyDataSetChanged();
     }
 
     /**

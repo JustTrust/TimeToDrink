@@ -65,11 +65,17 @@ public class BarMapFragment extends Fragment implements OnMapReadyCallback {
         if (currentPositionMarker != null) {
             currentPositionMarker.remove();
             currentPositionMarker = mMap.addMarker(new MarkerOptions()
-                    .position(currentMarker).flat(false).draggable(true).title(getString(R.string.current_lacation)));
+                    .position(currentMarker)
+                    .flat(false)
+                    .draggable(true)
+                    .title(getString(R.string.current_location)));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(currentMarker));
         }else{
             currentPositionMarker = mMap.addMarker(new MarkerOptions()
-                    .position(currentMarker).flat(false).draggable(true).title(getString(R.string.current_lacation)));
+                    .position(currentMarker)
+                    .flat(false)
+                    .draggable(true)
+                    .title(getString(R.string.current_location)));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentMarker, 15));
         }
     }

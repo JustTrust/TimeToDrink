@@ -1,14 +1,17 @@
 package org.belichenko.a.timetodrink;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -132,9 +135,9 @@ public class MainActivity extends AppCompatActivity
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setInterval(15000);
+        mLocationRequest.setFastestInterval(7000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     @Override
@@ -164,6 +167,16 @@ public class MainActivity extends AppCompatActivity
      * Requests location updates from the FusedLocationApi.
      */
     protected void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient,
                 mLocationRequest,
@@ -186,18 +199,18 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
+        super.onStart();
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
         }
-        super.onStart();
     }
 
     @Override
     protected void onStop() {
+        super.onStop();
         if (mGoogleApiClient != null) {
             mGoogleApiClient.disconnect();
         }
-        super.onStop();
     }
 
     @Override
@@ -211,7 +224,7 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         if (mGoogleApiClient.isConnected()) {
             startLocationUpdates();
-        }else {
+        } else {
             Log.d(TAG, "onResume() mGoogleApiClient not connected");
         }
     }
@@ -220,8 +233,19 @@ public class MainActivity extends AppCompatActivity
         LocationServices.FusedLocationApi.removeLocationUpdates(
                 mGoogleApiClient, this);
     }
+
     @Override
     public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         Location mLastLocation = LocationServices.FusedLocationApi
                 .getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
@@ -244,8 +268,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        BarMapFragment.getInstance().updateCurrentPlace(location);
-        ListFragment.getInstance().updatePlaces(location);
+        currentLocation = location;
+        BarMapFragment.getInstance().updateCurrentPlace(currentLocation);
+        ListFragment.getInstance().updatePlaces(currentLocation);
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
