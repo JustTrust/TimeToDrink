@@ -17,4 +17,7 @@ public interface googleNearbyPlaces {
 
     @GET("/maps/api/place/details/json")
     Call<DetailsData> getDetailData(@QueryMap Map<String,String> filters);
+
+    @GET("/maps/api/place/details/json")
+    Call<DetailsData> getPhotoLink(@QueryMap Map<String,String> filters);
 }

@@ -345,8 +345,6 @@ public class MainActivity extends AppCompatActivity
         text_detail_phone.setText(response.body().result.formatted_phone_number);
         TextView text_detail_website = (TextView) detailView.findViewById(R.id.text_detail_website);
         text_detail_website.setText(response.body().result.website);
-//        TextView text_detail_rating = (TextView) detailView.findViewById(R.id.text_detail_rating);
-//        text_detail_rating.setText(String.valueOf(response.body().result.rating));
         RatingBar ratingBar = (RatingBar) detailView.findViewById(R.id.ratingBar);
         ratingBar.setRating(response.body().result.rating);
 
