@@ -39,10 +39,11 @@ public class PointsRecyclerViewAdapter extends RecyclerView.Adapter<PointsRecycl
         holder.mContentView.setText(mValues.get(position).vicinity);
         Picasso.with(App.getAppContext())
                 .load(mValues.get(position).icon)
+                .resize(40, 40)
                 .error(R.mipmap.ic_launcher)
                 .into(holder.mImageView);
 
-                holder.mView.setOnClickListener(new View.OnClickListener() {
+        holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
@@ -50,6 +51,17 @@ public class PointsRecyclerViewAdapter extends RecyclerView.Adapter<PointsRecycl
                     // fragment is attached to one) that an item has been selected.
                     mListener.onListFragmentInteraction(holder.mItem);
                 }
+            }
+        });
+        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (null != mListener) {
+                    // Notify the active callbacks interface (the activity, if the
+                    // fragment is attached to one) that an item has been long click.
+                    mListener.onLongListClick(holder.mItem);
+                }
+                return true;
             }
         });
     }

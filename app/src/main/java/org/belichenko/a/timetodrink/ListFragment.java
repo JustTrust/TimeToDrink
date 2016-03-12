@@ -53,8 +53,11 @@ public class ListFragment extends Fragment implements Callback<PointsData>, Cons
         // Set the adapter
         if (view instanceof RecyclerView) {
             adapter = new PointsRecyclerViewAdapter(resultsArrayList, mListener);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(App.getAppContext());
+            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
             RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setLayoutManager(new LinearLayoutManager(App.getAppContext()));
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.addItemDecoration(new DividerItemDecoration(getActivity()));
             recyclerView.setAdapter(adapter);
         }
         return view;
@@ -89,16 +92,16 @@ public class ListFragment extends Fragment implements Callback<PointsData>, Cons
         filter.put("radius", sharedPref.getString(RADIUS, "1000"));
         filter.put("language", "ru");
         filter.put("types", "bar|liquor_store");
-        filter.put("key", "AIzaSyC9JgNsRuDi0j5gUoE4WOwRZ7LrV85NPXA");
+        filter.put("key", getString(R.string.google_maps_web_key));
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://maps.googleapis.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         // prepare call in Retrofit 2.0
-        googleNearbyPlaces stackOverflowAPI = retrofit.create(googleNearbyPlaces.class);
+        googleNearbyPlaces nearbyPlaces = retrofit.create(googleNearbyPlaces.class);
 
-        Call<PointsData> call = stackOverflowAPI.getPlacesData(filter);
+        Call<PointsData> call = nearbyPlaces.getPlacesData(filter);
         //asynchronous call
         call.enqueue(this);
     }
@@ -141,5 +144,6 @@ public class ListFragment extends Fragment implements Callback<PointsData>, Cons
      */
     public interface OnListFragmentInteractionListener {
         void onListFragmentInteraction(Results item);
+        void onLongListClick(Results item);
     }
 }

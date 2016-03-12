@@ -10,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/view_marging"
+        android:contentDescription="@string/app_name"
         tools:src="@drawable/ic_media_play"/>
 
     <LinearLayout
@@ -29,9 +30,12 @@
             android:id="@+id/bar_adress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/view_marging"
-            android:textAppearance="?attr/textAppearanceListItem"
-            tools:text="Some text" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:text="Some text"
+            android:layout_marginLeft="@dimen/view_marging"
+            android:layout_marginRight="@dimen/view_marging"
+            android:layout_marginBottom="@dimen/view_marging" />
+
     </LinearLayout>
 
 </LinearLayout>

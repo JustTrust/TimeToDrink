@@ -12,4 +12,6 @@
     <string name="accuracy_text">Accuracy</string>
     <string name="text_accuracy1">high</string>
     <string name="text_accuracy2">low</string>
+    <string name="detailInformation">Detail information</string>
+    <string name="rating_text">Rating</string>
 </resources>

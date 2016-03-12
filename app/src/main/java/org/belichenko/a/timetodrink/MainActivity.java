@@ -2,6 +2,7 @@ package org.belichenko.a.timetodrink;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -21,7 +22,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RatingBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -36,10 +41,21 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
+import org.belichenko.a.timetodrink.data_details.DetailsData;
 import org.belichenko.a.timetodrink.data_structure.Results;
+import org.belichenko.a.timetodrink.data_structure.googleNearbyPlaces;
+
+import java.util.LinkedHashMap;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements Constants
+        , Callback<DetailsData>
         , ListFragment.OnListFragmentInteractionListener
         , GoogleApiClient.ConnectionCallbacks
         , GoogleApiClient.OnConnectionFailedListener
@@ -196,9 +212,38 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(Results item) {
-        Log.d("Main class", "onListFragmentInteraction() called with: " + "item = [" + item + "]");
-        BarMapFragment.getInstance().makePoint(item);
-        mViewPager.setCurrentItem(1);
+        Log.d(TAG, "onListFragmentInteraction() called with: " + "item = [" + item + "]");
+        if (item.geometry != null) {
+            BarMapFragment.getInstance().makePoint(item);
+            mViewPager.setCurrentItem(1);
+        }
+    }
+
+    @Override
+    public void onLongListClick(Results item) {
+        Log.d(TAG, "onLongListClick() called with: " + "item = [" + item + "]");
+        if (!item.place_id.isEmpty()) {
+            showDetailInformation(item.place_id);
+        }
+    }
+
+    private void showDetailInformation(String place_id) {
+
+        LinkedHashMap<String, String> filter = new LinkedHashMap<>();
+        filter.put("placeid", place_id);
+        filter.put("language", "ru");
+        filter.put("key", getString(R.string.google_maps_web_key));
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://maps.googleapis.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        // prepare call in Retrofit 2.0
+        googleNearbyPlaces detailData = retrofit.create(googleNearbyPlaces.class);
+
+        Call<DetailsData> call = detailData.getDetailData(filter);
+        //asynchronous call
+        call.enqueue(this);
     }
 
     @Override
@@ -237,7 +282,7 @@ public class MainActivity extends AppCompatActivity
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(
                     mGoogleApiClient, this);
-        }else {
+        } else {
             Log.d(TAG, "stopLocationUpdates() mGoogleApiClient not connected");
         }
     }
@@ -279,6 +324,42 @@ public class MainActivity extends AppCompatActivity
         currentLocation = location;
         BarMapFragment.getInstance().updateCurrentPlace(currentLocation);
         ListFragment.getInstance().updatePlaces(currentLocation);
+    }
+
+    @Override
+    public void onResponse(Call<DetailsData> call, Response<DetailsData> response) {
+        if (response.body() == null) {
+            return;
+        }
+        if (!response.body().status.equals("OK")){
+            Toast.makeText(MainActivity.this, response.body().status, Toast.LENGTH_LONG).show();
+        }
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View detailView = layoutInflater.inflate(R.layout.details_data, null);
+
+        TextView text_detail_name = (TextView) detailView.findViewById(R.id.text_detail_name);
+        text_detail_name.setText(response.body().result.name);
+        TextView text_detail_adress = (TextView) detailView.findViewById(R.id.text_detail_adress);
+        text_detail_adress.setText(response.body().result.formatted_address);
+        TextView text_detail_phone = (TextView) detailView.findViewById(R.id.text_detail_phone);
+        text_detail_phone.setText(response.body().result.formatted_phone_number);
+        TextView text_detail_website = (TextView) detailView.findViewById(R.id.text_detail_website);
+        text_detail_website.setText(response.body().result.website);
+//        TextView text_detail_rating = (TextView) detailView.findViewById(R.id.text_detail_rating);
+//        text_detail_rating.setText(String.valueOf(response.body().result.rating));
+        RatingBar ratingBar = (RatingBar) detailView.findViewById(R.id.ratingBar);
+        ratingBar.setRating(response.body().result.rating);
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert
+                .setTitle(R.string.detailInformation)
+                .setView(detailView)
+                .show();
+    }
+
+    @Override
+    public void onFailure(Call<DetailsData> call, Throwable t) {
+
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

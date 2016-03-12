@@ -70,7 +70,7 @@ public class BarMapFragment extends Fragment implements OnMapReadyCallback {
                     .draggable(true)
                     .title(getString(R.string.current_location)));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(currentMarker));
-        }else{
+        } else {
             currentPositionMarker = mMap.addMarker(new MarkerOptions()
                     .position(currentMarker)
                     .flat(false)
@@ -81,32 +81,35 @@ public class BarMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     protected void makePoint(Results point) {
+        if (point == null) {
+            return;
+        }
         if (currentPositionMarker != null) {
             mMap.clear();
             mMap.addMarker(new MarkerOptions()
                     .position(currentPositionMarker.getPosition())
-                    .flat(true)
-                    .draggable(true)
+                    .flat(false)
+                    .draggable(false)
                     .title(currentPositionMarker.getTitle())
                     .snippet(currentPositionMarker.getSnippet()));
         }
-        if (point != null) {
-            ImageView imageView = new ImageView(App.getAppContext());
-            Picasso.with(App.getAppContext())
-                    .load(point.icon)
-                    .error(R.mipmap.ic_launcher)
-                    .into(imageView);
-            final LatLng coordinates = new LatLng(point.geometry.location.lat, point.geometry.location.lng);
-            Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-            Marker marker = mMap.addMarker(new MarkerOptions()
-                    .position(coordinates)
-                    .flat(true)
-                    .draggable(true)
-                    .title(point.name)
-                    .snippet(point.vicinity)
-                    .icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 11));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 1200, null);
-        }
+
+        ImageView imageView = new ImageView(App.getAppContext());
+        Picasso.with(App.getAppContext())
+                .load(point.icon)
+                .resize(40, 40)
+                .error(R.mipmap.ic_launcher)
+                .into(imageView);
+        final LatLng coordinates = new LatLng(point.geometry.location.lat, point.geometry.location.lng);
+        Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        Marker marker = mMap.addMarker(new MarkerOptions()
+                .position(coordinates)
+                .flat(false)
+                .draggable(false)
+                .title(point.name)
+                .snippet(point.vicinity)
+                .icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 11));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 1200, null);
     }
 }
