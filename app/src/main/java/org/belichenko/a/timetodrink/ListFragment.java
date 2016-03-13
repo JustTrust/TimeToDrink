@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,15 +54,24 @@ public class ListFragment extends Fragment implements Callback<PointsData>, Cons
         View view = inflater.inflate(R.layout.fragment_list, container, false);
         resultsArrayList = new ArrayList<>();
         // Set the adapter
-        if (view instanceof RecyclerView) {
-            adapter = new PointsRecyclerViewAdapter(resultsArrayList, mListener);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(App.getAppContext());
-            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setLayoutManager(layoutManager);
-            recyclerView.addItemDecoration(new DividerItemDecoration(getActivity()));
-            recyclerView.setAdapter(adapter);
-        }
+
+        adapter = new PointsRecyclerViewAdapter(resultsArrayList, mListener);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(App.getAppContext());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity()));
+        recyclerView.setAdapter(adapter);
+
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Try to update list", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
         return view;
     }
 
@@ -107,6 +119,12 @@ public class ListFragment extends Fragment implements Callback<PointsData>, Cons
     }
 
     @Override
+    public void onDestroyView() {
+        Log.d(TAG, "onDestroyView() called with: " + "");
+        super.onDestroyView();
+    }
+
+    @Override
     public void onResponse(Call<PointsData> call, Response<PointsData> response) {
         if (response.body() != null) {
             if (response.body().status.equals("OK")) {
@@ -144,6 +162,7 @@ public class ListFragment extends Fragment implements Callback<PointsData>, Cons
      */
     public interface OnListFragmentInteractionListener {
         void onListFragmentInteraction(Results item);
+
         void onLongListClick(Results item);
     }
 }

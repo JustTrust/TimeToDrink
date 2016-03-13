@@ -68,7 +68,8 @@ public class BarMapFragment extends Fragment implements OnMapReadyCallback {
                     .position(currentMarker)
                     .flat(false)
                     .draggable(true)
-                    .title(getString(R.string.current_location)));
+                    .title(getString(R.string.current_location))
+                    .snippet(currentMarker.toString()));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(currentMarker));
         } else {
             currentPositionMarker = mMap.addMarker(new MarkerOptions()
