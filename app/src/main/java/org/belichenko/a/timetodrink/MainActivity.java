@@ -68,9 +68,6 @@ public class MainActivity extends AppCompatActivity
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
 
-    public Location getCurrentLocation() {
-        return currentLocation;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +101,7 @@ public class MainActivity extends AppCompatActivity
                 LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
         result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
             @Override
-            public void onResult(LocationSettingsResult result) {
+            public void onResult(@NonNull LocationSettingsResult result) {
                 final Status status = result.getStatus();
                 final LocationSettingsStates locationSettings = result.getLocationSettingsStates();
                 switch (status.getStatusCode()) {
@@ -149,7 +146,7 @@ public class MainActivity extends AppCompatActivity
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(sharedPref.getInt(UPDATE_TIME, TEN_SECONDS));
         mLocationRequest.setFastestInterval(FIVE_SECONDS);
-        mLocationRequest.setPriority(sharedPref.getInt(ACCURACY, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY));
+        mLocationRequest.setPriority(sharedPref.getInt(ACCURACY, LocationRequest.PRIORITY_HIGH_ACCURACY));
     }
 
     @Override
@@ -179,7 +176,10 @@ public class MainActivity extends AppCompatActivity
      * Requests location updates from the FusedLocationApi.
      */
     protected void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this
+                , Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this
+                , Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity
                 this
         ).setResultCallback(new ResultCallback<Status>() {
             @Override
-            public void onResult(Status status) {
+            public void onResult(@NonNull Status status) {
                 Log.d(TAG, "startLocationUpdates() called with: " + "status = [" + status + "]");
             }
         });
@@ -281,7 +281,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnected(Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this
+                , Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this
+                , Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding

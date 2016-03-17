@@ -100,10 +100,8 @@ public class SettingFragment extends Fragment implements Constants {
                     edit.putInt(UPDATE_TIME, TWENTY_SECONDS);
                 }
 
-                if (rb != null) {
-                    edit.putString(STORED_UPDATE_TIME, rb.getText().toString());
-                    edit.apply();
-                }
+                edit.putString(STORED_UPDATE_TIME, rb.getText().toString());
+                edit.apply();
             }
         });
     }
