@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "Main activity";
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    private Location currentLocation;
+    protected Location currentLocation;
     private ViewPager mViewPager;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;

@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -53,6 +51,7 @@ public class ListFragment extends Fragment implements Callback<PointsData>, Cons
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
         resultsArrayList = new ArrayList<>();
+        resultsArrayList.add(new Results("Please wait for coordinates update..."));
         // Set the adapter
 
         adapter = new PointsRecyclerViewAdapter(resultsArrayList, mListener);
@@ -62,16 +61,10 @@ public class ListFragment extends Fragment implements Callback<PointsData>, Cons
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity()));
         recyclerView.setAdapter(adapter);
-
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Try to update list", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
+        Location location = ((MainActivity) getActivity()).currentLocation;
+        if (location != null){
+            updatePlaces(location);
+        }
         return view;
     }
 
